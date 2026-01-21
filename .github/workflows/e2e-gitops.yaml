@@ -64,11 +64,14 @@ jobs:
           docker pull docker.io/duboisjou0/supermariogitopsproject:${{ env.VERSION }}
           docker save -o supermariolatestdockerimage.tar docker.io/duboisjou0/supermariogitopsproject:${{ env.VERSION }}
      
-      - name: Run Trivy vulnerability scanner in tarball mode
+      - name: Compute VERSION from version.txt
+        run: echo "VERSION=$(( $(cat version.txt) + 1 ))" >> $GITHUB_ENV
+
+      - name: Run Trivy vulnerability scanner (scan image from Docker Hub)
         uses: aquasecurity/trivy-action@master
         with:
-          input: /github/workspace/supermariolatestdockerimage.tar
-          exit-code: '0'
+          image-ref: docker.io/duboisjou0/supermariogitopsproject:${{ env.VERSION }}
+          exit-code: '0' #0 to skip vulnerability in docker image'1'
           severity: 'CRITICAL,HIGH'
           
   update_k8s_yaml_version_file_with_latest_image_tag:
